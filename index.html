@@ -11,7 +11,9 @@ body {
   text-align:center;
 }
 canvas {
-  background-color:#111133;
+  /* rgb(57,66,70); */
+  /* rgb(69,77,81); */
+  background: linear-gradient(rgb(57,66,70), rgb(69,77,81));
 }
   </style>
 </head>
@@ -52,12 +54,21 @@ var KeyTracker = new (function(){
 
 // canvas element and 2D context
 var canvas = document.createElement( 'canvas' );
-var context = canvas.getContext('2d')
-context.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+var c = canvas.getContext('2d')
 canvas.width = window.innerWidth; 
-canvas.height = window.innerHeight; 
+canvas.height = window.innerHeight;
+
+var ratio = ratio || window.devicePixelRatio
+if(ratio == 2) {
+  c.scale(2, 2);
+  canvas.width = window.innerWidth * 2;
+  canvas.height = window.innerHeight *2;
+
+  canvas.style.height = window.innerHeight + 'px';
+  canvas.style.width = window.innerWidth + 'px';
+}
+
 document.body.appendChild(canvas);
-var c = context; 
 
 // Creating particles
 var particles = [];
@@ -66,13 +77,13 @@ for (var i=0;i<150; i+=2) {
   var p1 = new Particle();
   p1.colour = random_color(120,250);
   p1.pos.reset(Math.random()*canvas.width, Math.random()*canvas.height);  
-  p1.vel.reset(Math.random()*6 - 3, Math.random()*6 - 3);
+  p1.vel.reset(Math.random()*p1.unit - p1.unit/2, Math.random()*p1.unit - p1.unit/2);
   particles.push(p1);
   
   var p2 = new Particle();
   p2.colour = p1.colour;
   p2.pos.reset(Math.random()*canvas.width, Math.random()*canvas.height);  
-  p2.vel.reset(Math.random()*6 - 3, Math.random()*6 - 3);
+  p2.vel.reset(Math.random()*p1.unit - p1.unit/2, Math.random()*p1.unit - p1.unit/2);
   particles.push(p2);
   
 }
