@@ -34,7 +34,7 @@ function Particle() {
   this.angle = 0;
   this.targetAngle = 0;
   this.isPlayer = false;
-  this.unit = window.ratio * 5 || 5;
+  this.unit = window.ratio * 6 || 6;
   
   this.moveTo = function(to, speed) {
     vel.x = (to.x-pos.x )/50;

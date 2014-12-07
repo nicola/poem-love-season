@@ -89,7 +89,12 @@ for (var i=0;i<150; i+=2) {
 }
 
 function loop() { 
-  c.clearRect(0,0,canvas.width, canvas.height); 
+  c.clearRect(0,0,canvas.width, canvas.height);
+
+  var distance = 100;
+  if (ratio == 2) {
+    distance = 150;
+  }
   
   // Move people
   var fire = 0;
@@ -100,7 +105,7 @@ function loop() {
       var diff = p2.pos.clone();
       diff.minusEq(p1.pos);  
       
-      if(diff.isMagLessThan(100)) { 
+      if(diff.isMagLessThan(distance)) { 
         c.strokeStyle = "rgba(255,0,0,0.4)"; 
         c.beginPath(); 
         c.moveTo(p1.pos.x, p1.pos.y); 
