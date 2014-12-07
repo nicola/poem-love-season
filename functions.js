@@ -1,68 +1,7 @@
-function CountUp(msg, initDate, id){
-  this.msg = msg;
-  this.beginDate = new Date(initDate);
-  this.numOfDays = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
-  this.borrowed = 0, this.years = 0, this.months = 0, this.days = 0;
-  this.hours = 0, this.minutes = 0, this.seconds = 0;
-  this.updateNumOfDays();
-  this.calculate(id);
-}
-CountUp.prototype.updateNumOfDays=function(){
-  var dateNow = new Date();
-  var currYear = dateNow.getFullYear();
-  if ( (currYear % 4 == 0 && currYear % 100 != 0 ) || currYear % 400 == 0 ) {
-    this.numOfDays[1] = 29;
-  }
-  var self = this;
-  setTimeout(function(){self.updateNumOfDays();}, (new Date((currYear+1), 1, 1) - dateNow));
-}
- 
-CountUp.prototype.datePartDiff=function(then, now, MAX){
-  var diff = now - then - this.borrowed;
-  this.borrowed = 0;
-  if ( diff > -1 ) return diff;
-  this.borrowed = 1;
-  return (MAX + diff);
-}
- 
-CountUp.prototype.formatTime=function(){
-  this.seconds = this.addLeadingZero(this.seconds);
-  this.minutes = this.addLeadingZero(this.minutes);
-  this.hours = this.addLeadingZero(this.hours);
-}
- 
-CountUp.prototype.addLeadingZero=function(value){
-  return value < 10 ? ("0" + value) : value;
-}
- 
-CountUp.prototype.calculate=function(id){
-  var currDate = new Date();
-  var prevDate = this.beginDate;
-  this.seconds = this.datePartDiff(prevDate.getSeconds(), currDate.getSeconds(), 60);
-  this.minutes = this.datePartDiff(prevDate.getMinutes(), currDate.getMinutes(), 60);
-  this.hours = this.datePartDiff(prevDate.getHours(), currDate.getHours(), 24);
-  var dayBUG = currDate.getMonth()-1;
-  if (-1 == dayBUG) dayBUG = 11;
-  this.days = this.datePartDiff(prevDate.getDate(), currDate.getDate(), this.numOfDays[dayBUG]);
-  this.months = this.datePartDiff(prevDate.getMonth(), currDate.getMonth(), 12);
-  this.years = this.datePartDiff(prevDate.getFullYear(), currDate.getFullYear(),0);
-  this.formatTime();
-  var countainer = document.getElementById(id);
-  var html = this.msg+"<br/>";
-  if (this.years > 0) html += "<div class='number'><div class='num'>" + this.years + "</div><div class='desc'>" + (this.years == 1? "year" : "years") + "</div></div>";
-  if (this.months > 0) html += "<div class='number'><div class='num'>" + this.months + "</div><div class='desc'>" + (this.months == 1? "month" : "months") + "</div></div>";
-  html += "<div class='number'><div class='num'>" + this.days + "</div><div class='desc'>" + (this.days == 1? "day" : "days") + "</div></div>";
-  html += "<div class='number'><div class='num'>" + this.hours + "</div><div class='desc'>" + (this.hours == 1? "hour" : "hours") + "</div></div>";
-  html += "<div class='number'><div class='num'>" + this.minutes + "</div><div class='desc'>" + (this.minutes == 1? "minute" : "minutes") + "</div></div>";
-  html += "<div class='number'><div class='num'>" + this.seconds + "</div><div class='desc'>" + (this.seconds == 1? "second" : "seconds") + "</div></div>";
-  countainer.innerHTML = html;
-  var self = this;
-  setTimeout(function(){self.calculate(id);}, 1000);
-}
-
 function random_int (min, max) { return Math.floor(Math.random() * (max - min + 1)) + min;}
 function gcd(a, b) { var w; while (b !== 0) { w = a % b; a = b; b = w; } return a; }
-
+function radians(deg) { return deg*Math.PI/180; }
+function degrees(rad) { return rad*180/Math.PI; }
 
 function random_color(iDarkLuma, iLightLuma) {
   var sColour, rgb, r, g, b;
@@ -84,4 +23,53 @@ function eventFire(el, etype){
     evObj.initEvent(etype, true, false);
     el.dispatchEvent(evObj);
   }
+}
+
+function Particle() {
+  var pos = this.pos = new Vector2(0,0); 
+  var vel = this.vel = new Vector2(0,0);
+  this.colour = random_color(120,250);
+  this.angle = 0; 
+  this.targetAngle = 0;
+  this.isPlayer = false;
+  
+  this.moveTo = function(to, speed) {
+    vel.x = (to.x-pos.x )/50;
+    vel.y = (to.y-pos.y)/50;
+  }
+  
+  this.update = function(canvas) { 
+    pos.plusEq(vel); 
+    
+    if(pos.x<0) pos.x = canvas.width; 
+    else if(pos.x>canvas.width) pos.x = 0; 
+    if(pos.y<0) pos.y = canvas.height; 
+    else if(pos.y>canvas.height) pos.y = 0;
+    
+    if (this.targetAngle > this.angle+Math.PI) this.targetAngle -= Math.PI*2;
+    if (this.targetAngle < this.angle-Math.PI) this.targetAngle += Math.PI*2;
+
+    this.angle += (this.targetAngle - this.angle) * 0.4;
+  };
+
+  this.draw = function(c, color, fill) { 
+    c.strokeStyle = color || "white"; 
+    c.save(); 
+    c.translate(pos.x, pos.y); 
+    c.rotate(this.isPlayer ? this.angle : vel.angle(true)); 
+    c.beginPath();
+    c.moveTo(-6,-6); 
+    c.lineTo(6,0); 
+    c.lineTo(-6,6); 
+    c.closePath(); 
+    c.stroke();
+    if (fill) {
+      c.fillStyle = fill;
+    }
+    else {
+      c.fillStyle = this.colour;
+    }
+    c.fill();
+    c.restore();
+  };
 }

@@ -2,139 +2,125 @@
 <!doctype html>
 <html lang=en>
 <head>
-<meta charset=utf-8>
-<title></title>
-<style type="text/css"> 
+  <meta charset=utf-8>
+  <title>Love seasons</title>
+  <style type="text/css"> 
 body {
-	background-color: #000000;
-	margin: 0px;
-	text-align:center;
+  background-color: #000000;
+  margin: 0px;
+  text-align:center;
 }
 canvas {
-	background-color:#111133;
+  background-color:#111133;
 }
-
-</style>
-
-
+  </style>
 </head>
 <body>
 
-<script src="underscore-min.js"></script>	
-<script src="functions.js"></script>
-<script src="Vector2.js"></script>
-	
-<script>
+  <script src="underscore-min.js"></script>  
+  <script src="functions.js"></script>
+  <script src="Vector2.js"></script>
+  <script type="text/javascript">
 
 // I track your fingers
-KeyTracker = new (function(){
-	
-	this.keysPressed = {}; 
-	this.UP = 38; 
-	this.LEFT = 37; 
-	this.RIGHT = 39; 
-	this.DOWN = 40; 
-	var defaultKeys = [32,37, 38, 39, 40];
-	
-	this.isKeyDown = function (key) { 
-		if (typeof key == 'string')
-			key = key.charCodeAt(0); 
-		return(this.keysPressed[key]);
-	};
-	
-	document.addEventListener("keydown", function(e) {	
-		if(defaultKeys.indexOf(e.keyCode)>-1) e.preventDefault(); 
-		KeyTracker.keysPressed[e.keyCode] = true; 
-		}); 
-	document.addEventListener("keyup", 	function(e) {
-		if(defaultKeys.indexOf(e.keyCode)>-1) e.preventDefault(); 
-		KeyTracker.keysPressed[e.keyCode] = false;
-		}); 
-		
+var KeyTracker = new (function(){
+  
+  this.keysPressed = {}; 
+  this.UP = 38; 
+  this.LEFT = 37; 
+  this.RIGHT = 39; 
+  this.DOWN = 40; 
+  var defaultKeys = [32,37, 38, 39, 40];
+  
+  this.isKeyDown = function (key) { 
+    if (typeof key == 'string')
+      key = key.charCodeAt(0); 
+    return(this.keysPressed[key]);
+  };
+  
+  document.addEventListener("keydown", function(e) {
+    if(defaultKeys.indexOf(e.keyCode)>-1) e.preventDefault();
+    KeyTracker.keysPressed[e.keyCode] = true;
+  }); 
+  document.addEventListener("keyup", function(e) {
+    if(defaultKeys.indexOf(e.keyCode)>-1) e.preventDefault();
+    KeyTracker.keysPressed[e.keyCode] = false;
+  });
+    
 })();
 
-function radians(deg) {return deg*Math.PI/180;}; 
-function degrees(rad) {return rad*180/Math.PI;};
 
 // canvas element and 2D context
 var canvas = document.createElement( 'canvas' );
-var context = canvas.getContext( '2d' );
+var context = canvas.getContext('2d')
+context.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
 canvas.width = window.innerWidth; 
 canvas.height = window.innerHeight; 
 document.body.appendChild(canvas);
-c = context; 
+var c = context; 
 
 // Creating particles
 var particles = [];
 var together = false;
 for (var i=0;i<150; i+=2) {
-	var p1 = new Particle();
-	p1.colour = random_color(120,250);
-	p1.pos.reset(Math.random()*canvas.width, Math.random()*canvas.height);  
-	p1.vel.reset(Math.random()*6 - 3, Math.random()*6 - 3);
-	particles.push(p1);
-	
-	var p2 = new Particle();
-	p2.colour = p1.colour;
-	p2.pos.reset(Math.random()*canvas.width, Math.random()*canvas.height);  
-	p2.vel.reset(Math.random()*6 - 3, Math.random()*6 - 3);
-	particles.push(p2);
-	
+  var p1 = new Particle();
+  p1.colour = random_color(120,250);
+  p1.pos.reset(Math.random()*canvas.width, Math.random()*canvas.height);  
+  p1.vel.reset(Math.random()*6 - 3, Math.random()*6 - 3);
+  particles.push(p1);
+  
+  var p2 = new Particle();
+  p2.colour = p1.colour;
+  p2.pos.reset(Math.random()*canvas.width, Math.random()*canvas.height);  
+  p2.vel.reset(Math.random()*6 - 3, Math.random()*6 - 3);
+  particles.push(p2);
+  
 }
 
 function loop() { 
-	
-	c.clearRect(0,0,canvas.width, canvas.height); 
-	
-	// Move people
-	var fire = 0;
-	
-	for(var i=0; i<particles.length; i++) { 
-		var p1 = particles[i]; 
-		
-		for(var j=i+1 ; j<particles.length; j++) {
-			
-			var p2 = particles[j]; 
-			
-			var diff = p2.pos.clone();
-			diff.minusEq(p1.pos);  
-			
-			if(diff.isMagLessThan(100)) { 
-				c.strokeStyle = "rgba(255,0,0,0.4)"; 
-				c.beginPath(); 
-				c.moveTo(p1.pos.x, p1.pos.y); 
-				c.lineTo(p2.pos.x, p2.pos.y); 
-				c.stroke(); 
-				
-				var l = diff.magnitude(); 
-				var forceAmount = 1- (l/70); 
-				
-				diff.normalise(); 
-				
-				diff.multiplyEq(forceAmount * -0.2); 
-				if (!together) {
-				  p2.vel.minusEq(diff); 
-				  p1.vel.plusEq(diff); 	
-			  }
-			}
-		}
-	}
-	
-	for (var i=0; i<particles.length; i+=2) {
-		var p1 = particles[i];
-		p1.update(canvas);
-		p1.draw(c, 'white', fire == i ? 'red' : false); 
-		
+  c.clearRect(0,0,canvas.width, canvas.height); 
+  
+  // Move people
+  var fire = 0;
+  for(var i=0; i<particles.length; i++) { 
+    var p1 = particles[i]; 
+    for(var j=i+1 ; j<particles.length; j++) {
+      var p2 = particles[j]; 
+      var diff = p2.pos.clone();
+      diff.minusEq(p1.pos);  
+      
+      if(diff.isMagLessThan(100)) { 
+        c.strokeStyle = "rgba(255,0,0,0.4)"; 
+        c.beginPath(); 
+        c.moveTo(p1.pos.x, p1.pos.y); 
+        c.lineTo(p2.pos.x, p2.pos.y); 
+        c.stroke(); 
+
+        var l = diff.magnitude(); 
+        var forceAmount = 1- (l/70); 
+        diff.normalise(); 
+        diff.multiplyEq(forceAmount * -0.2); 
+        if (!together) {
+          p2.vel.minusEq(diff); 
+          p1.vel.plusEq(diff);   
+        }
+      }
+    }
+  }
+  
+  for (var i=0; i<particles.length; i+=2) {
+    var p1 = particles[i];
+    p1.update(canvas);
+    p1.draw(c, 'white', fire == i ? 'red' : false);
+
     var p2 = particles[i+1];
-		p2.update(canvas);
-		p2.draw(c, 'white', fire == i ? 'red' : false); 
-		
-		
+    p2.update(canvas);
+    p2.draw(c, 'white', fire == i ? 'red' : false);
 
     if (together) {
       var diff = p1.pos.clone();
-    	diff.minusEq(p2.pos);
-    	if(diff.isMagLessThan(400)) {
+      diff.minusEq(p2.pos);
+      if(diff.isMagLessThan(400)) {
         p1.moveTo(p2.pos)
       }
       if(diff.isMagLessThan(200)) {
@@ -143,14 +129,14 @@ function loop() {
 
     }
 
-	}
+  }
 
   // Move yourself
-	updatePlayer();
-	player.update(canvas);
-	player.draw(c, 'red', 'white');
+  updatePlayer();
+  player.update(canvas);
+  player.draw(c, 'red', 'white');
 
-	// Create connections
+  // Create connections
 }
 setInterval(loop, 1000/30);
 setInterval(function() {
@@ -167,96 +153,33 @@ player.pos.reset(canvas.width/2, canvas.height/2);
 player.vel.reset(0,0);
 
 function updatePlayer() { 
-	
-	player.vel.multiplyEq(0.96);
- 
-	var speed = 0.5; 
-	
-	// You can look right
-	if(KeyTracker.isKeyDown(KeyTracker.RIGHT)) { 
-		player.targetAngle+=radians(10);
-	} 
-	
-	// You can look left
-	if(KeyTracker.isKeyDown(KeyTracker.LEFT)) { 
-		player.targetAngle-=radians(10);
-	}
-	
-	// You can go straight ahead
-	if(KeyTracker.isKeyDown(KeyTracker.UP)) { 
-	
-		player.vel.x+= Math.cos(player.angle) * speed;
-		player.vel.y+= Math.sin(player.angle) * speed;
-	}
-	
-	// You can slow down stop and think
-	if(KeyTracker.isKeyDown(KeyTracker.DOWN)) { 
-		player.vel.multiplyEq(0.9);
-	}
-	
-	// You can never go back
+  player.vel.multiplyEq(0.96);
+  var speed = 0.5; 
+  
+  // You can look right
+  if(KeyTracker.isKeyDown(KeyTracker.RIGHT)) { 
+    player.targetAngle+=radians(10);
+  } 
+  
+  // You can look left
+  if(KeyTracker.isKeyDown(KeyTracker.LEFT)) { 
+    player.targetAngle-=radians(10);
+  }
+  
+  // You can go straight ahead
+  if(KeyTracker.isKeyDown(KeyTracker.UP)) { 
+  
+    player.vel.x+= Math.cos(player.angle) * speed;
+    player.vel.y+= Math.sin(player.angle) * speed;
+  }
+  
+  // You can slow down stop and think
+  if(KeyTracker.isKeyDown(KeyTracker.DOWN)) { 
+    player.vel.multiplyEq(0.9);
+  }
+  
+  // You can never go back
 }
-
-
-
-function Particle() {
-	
-	var pos = this.pos = new Vector2(0,0); 
-	var vel = this.vel = new Vector2(0,0);
-	this.colour = random_color(120,250);
-	this.angle = 0; 
-	this.targetAngle = 0;
-	this.isPlayer = false;
-	
-	this.moveTo = function(to, speed) {
-	  vel.x = (to.x-pos.x )/50;
-	  vel.y = (to.y-pos.y)/50;
-	}
-	
-	this.update = function(canvas) { 
-		
-		pos.plusEq(vel); 
-		
-		if(pos.x<0) pos.x = canvas.width; 
-		else if(pos.x>canvas.width) pos.x = 0; 
-		if(pos.y<0) pos.y = canvas.height; 
-		else if(pos.y>canvas.height) pos.y = 0;
-		
-		if (this.targetAngle > this.angle+Math.PI) this.targetAngle -= Math.PI*2;
-    if (this.targetAngle < this.angle-Math.PI) this.targetAngle += Math.PI*2;
-
-    this.angle += (this.targetAngle - this.angle) * 0.4;
-		
-	};
-	
-	this.draw = function(c, color, fill) { 
-		
-		c.strokeStyle = color || "white"; 
-		c.save(); 
-		c.translate(pos.x, pos.y); 
-		c.rotate(this.isPlayer ? this.angle : vel.angle(true)); 
-		c.beginPath();
-		c.moveTo(-6,-6); 
-		c.lineTo(6,0); 
-		c.lineTo(-6,6); 
-		c.closePath(); 
-		c.stroke();
-		if (fill) {
-		  c.fillStyle = fill;
-	  }
-	  else {
-	    c.fillStyle = this.colour;
-	  }
-	  c.fill()
-		c.restore();
-		
-	};
-	
-	
-	
-}
-
-
 
 </script>
 </body>
